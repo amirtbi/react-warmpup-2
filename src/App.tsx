@@ -1,148 +1,160 @@
-import { useState } from 'react'
-import { Icon } from '@iconify/react';
-// import './App.css'
+import { useState } from "react";
+import { Icon } from "@iconify/react";
+import "./App.css";
 
-// function Header() {
-//   return <>
-//     <header className='header'>
-//       <h1>Fast React Pizza Co.</h1>
-//     </header>
-//   </>
-// }
-// const Menu = () => {
-//   return <>
-//     <main className='menu'>
-//       <h2>Our Menu</h2>
-//       <Pizza name="Psizza Delicious"
-//         photoName="margherita.jpg"
-//         price={12}
-//         ingredients="Tomato, mozarella, spinach, and ricotta cheese" />
-
-//       <Pizza name="Psizza Delicious"
-//         photoName="margherita.jpg"
-//         price={10}
-//         ingredients="Tomato, mozarella, spinach, and ricotta cheese" />
-//     </main>
-//   </>
-// }
-
-// const Footer = () => {
-//   const hour = new Date().getHours();
-//   return <>
-//     <footer className="footer">
-//       {hour}&nbsp;We are currenly open
-//     </footer>
-//   </>
-// }
-
-// function Pizza(props: {
-//   name: string,
-//   photoName: string, price: number, ingredients: string
-// }) {
-//   return <>
-//     <div className="pizza">
-//       <img src={`/${props.photoName}`} />
-//       <div>
-//         <h2>{props.name}</h2>
-//         <p>{props.ingredients}</p>
-//         <span>{props.price + 3}</span>
-//       </div>
-//     </div>
-//   </>
-// }
-
-
-
-
-// function App() {
-//   return (
-//     <>
-//       <div className="container">
-//         <Header />
-//         <Menu />
-//         <Footer />
-//       </div >
-//     </>
-//   )
-// }
-
-
-function CardHeader(props: { imgSrc: string }) {
-
-  return <>
-    <div style={{ width: "100%" }} >
-      <img style={{ width: "100%" }} src={props.imgSrc} />
-    </div>
-  </>
+interface IPizza {
+  id: number;
+  name: string;
+  ingredients: string;
+  price: number;
+  photoName: string;
+  soldOut: boolean;
 }
 
-function CardBody(props: { title: string, content: string }) {
-  return <>
-    <div style={{ padding: "0.5rem" }}>
-      <h1>{props.title}</h1>
-      <p>{props.content}</p>
-    </div>
+const pizzaData: IPizza[] = [
+  {
+    id: 1,
+    name: "Focaccia",
+    ingredients: "Bread with italian olive oil and rosemary",
+    price: 6,
+    photoName: "/focaccia.jpg",
+    soldOut: false,
+  },
+  {
+    id: 2,
+    name: "Pizza Margherita",
+    ingredients: "Tomato and mozarella",
+    price: 10,
+    photoName: "/margherita.jpg",
+    soldOut: false,
+  },
+  {
+    id: 3,
+    name: "Pizza Spinaci",
+    ingredients: "Tomato, mozarella, spinach, and ricotta cheese",
+    price: 12,
+    photoName: "/spinaci.jpg",
+    soldOut: false,
+  },
+  {
+    id: 4,
+    name: "Pizza Funghi",
+    ingredients: "Tomato, mozarella, mushrooms, and onion",
+    price: 12,
+    photoName: "/funghi.jpg",
+    soldOut: false,
+  },
+  {
+    id: 5,
 
-  </>
+    name: "Pizza Funghi",
+    ingredients: "Tomato, mozarella, and pepperoni",
+    price: 15,
+    photoName: "/funghi.jpg",
+    soldOut: true,
+  },
+  {
+    id: 6,
+    name: "Pizza Prosciutto",
+    ingredients: "Tomato, mozarella, ham, aragula, and burrata cheese",
+    price: 18,
+    photoName: "/prosciutto.jpg",
+    soldOut: false,
+  },
+];
+
+function Header() {
+  return (
+    <>
+      <header className="header">
+        <h1>Fast React Pizza Co.</h1>
+      </header>
+    </>
+  );
+}
+const Menu = () => {
+  const pizzas = pizzaData;
+  const hasPizzas = pizzas.length > 0;
+  return (
+    <>
+      <main className="menu">
+        <h2>Our Menu</h2>
+
+        {hasPizzas ? (
+          <>
+            <p>Welcome to our restaurants</p>
+            <ul className="pizzas">
+              {pizzaData.map((pizza) => (
+                <Pizza info={pizza} key={pizza.id} />
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p>Not found any items</p>
+        )}
+      </main>
+    </>
+  );
+};
+
+const Footer = () => {
+  const hour = new Date().getHours();
+  const openHour = 12;
+  const closeHour = 22;
+  const isOpen = hour >= openHour && hour <= closeHour;
+  return (
+    <>
+      <footer className="footer">
+        {isOpen ? (
+          <Order closeHour={closeHour} openHour={openHour} />
+        ) : (
+          <p>We're currenlty closed. Please come back later .</p>
+        )}
+      </footer>
+    </>
+  );
+};
+
+function Order(props: { closeHour: number; openHour: number }) {
+  const { closeHour, openHour } = props;
+  return (
+    <>
+      <p className="order">
+        We're currently open from {openHour}:00 till {closeHour}:00, You can
+        order by
+        <button className="btn">Order now</button>
+      </p>
+    </>
+  );
 }
 
-function Skill(props: { skill: string, color: string }) {
-  const styles = {
-    backgroundColor: `${props.color}`, color: "white",
-    display: "flex", maxWidth: "100px",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderRadius: "1rem", padding: "0.25rem"
-  }
-  return <>
-    <div style={styles}>
-      <span>&nbsp;{props.skill}</span>
-      <div style={{ display: "flex" }}>
-        <Icon icon="mdi-light:home" />
-      </div>
-    </div>
-
-  </>
+function Pizza(props: { info: IPizza }) {
+  const { photoName, name, ingredients, price, soldOut } = props.info;
+  const classes = `pizza ${soldOut ? "sold-out" : ""}`;
+  return (
+    <>
+      <li className={classes}>
+        <img src={`${photoName}`} />
+        <div>
+          <h2>{name}</h2>
+          <p>{ingredients}</p>
+          <span>{soldOut ? "SoldOut" : price + 3}</span>
+        </div>
+      </li>
+    </>
+  );
 }
-
-function Skills() {
-
-  return <>
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
-      <Skill skill="javascript" color="blue" />
-      <Skill skill="Node js" color="red" />
-      <Skill skill="React js" color="orange" />
-    </div>
-
-  </>
-}
-
-function Card(props: { src: string, title: string, content: string }) {
-  const classes = {
-    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-    width: "300px",
-    paddingBottom: "0.75rem",
-    paddingTop: "0.75rem"
-  }
-  return <>
-    <div style={classes}>
-      <CardHeader imgSrc={props.src} />
-      <CardBody title={props.title} content={props.content} />
-      <Skills />
-    </div>
-  </>
-}
-
-
 
 function App() {
-  const styles = { maxWidth: "600px", padding: "0.5rem" }
-  return <>
-    <div style={styles}>
-      <Card src="/margherita.jpg" title="Delicious Meal" content="Some Delicious meal for your" />
-    </div>
-  </>
+  return (
+    <>
+      <div className="container">
+        <Header />
+        <Menu />
+        <Footer />
+      </div>
+    </>
+  );
 }
 
-
-export default App
+export default App;
