@@ -1,157 +1,103 @@
-import { useState } from "react";
-import { Icon } from "@iconify/react";
-import "./App.css";
+import { FormEvent, useState } from "react";
+import "./index.css";
 
-interface IPizza {
+interface IITems {
   id: number;
-  name: string;
-  ingredients: string;
-  price: number;
-  photoName: string;
-  soldOut: boolean;
+  description: string;
+  quantity: number;
+  packed: boolean;
 }
-
-const pizzaData: IPizza[] = [
-  {
-    id: 1,
-    name: "Focaccia",
-    ingredients: "Bread with italian olive oil and rosemary",
-    price: 6,
-    photoName: "/focaccia.jpg",
-    soldOut: false,
-  },
-  {
-    id: 2,
-    name: "Pizza Margherita",
-    ingredients: "Tomato and mozarella",
-    price: 10,
-    photoName: "/margherita.jpg",
-    soldOut: false,
-  },
-  {
-    id: 3,
-    name: "Pizza Spinaci",
-    ingredients: "Tomato, mozarella, spinach, and ricotta cheese",
-    price: 12,
-    photoName: "/spinaci.jpg",
-    soldOut: false,
-  },
-  {
-    id: 4,
-    name: "Pizza Funghi",
-    ingredients: "Tomato, mozarella, mushrooms, and onion",
-    price: 12,
-    photoName: "/funghi.jpg",
-    soldOut: false,
-  },
-  {
-    id: 5,
-
-    name: "Pizza Funghi",
-    ingredients: "Tomato, mozarella, and pepperoni",
-    price: 15,
-    photoName: "/funghi.jpg",
-    soldOut: true,
-  },
-  {
-    id: 6,
-    name: "Pizza Prosciutto",
-    ingredients: "Tomato, mozarella, ham, aragula, and burrata cheese",
-    price: 18,
-    photoName: "/prosciutto.jpg",
-    soldOut: false,
-  },
+const initialItems: IITems[] = [
+  { id: 1, description: "Passports", quantity: 2, packed: false },
+  { id: 2, description: "Socks", quantity: 12, packed: false },
+  { id: 3, description: "Socks", quantity: 12, packed: true },
 ];
 
-function Header() {
-  return (
-    <>
-      <header className="header">
-        <h1>Fast React Pizza Co.</h1>
-      </header>
-    </>
-  );
+function Logo() {
+  return <h1>Far away</h1>;
 }
-const Menu = () => {
-  const pizzas = pizzaData;
-  const hasPizzas = pizzas.length > 0;
+
+function Form() {
+  const [description, setDescription] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const handleSubmit = (e: FormEvent) => {
+    console.log("e", e);
+    e.preventDefault();
+
+    if (!description) return;
+
+    const newItem = { description, quantity, id: Date.now(), packed: false };
+    console.log("new item", newItem);
+
+    setDescription("");
+    setQuantity(1);
+  };
   return (
     <>
-      <main className="menu">
-        <h2>Our Menu</h2>
-
-        {hasPizzas ? (
-          <>
-            <p>Welcome to our restaurants</p>
-            <ul className="pizzas">
-              {pizzaData.map((pizza) => (
-                <Pizza info={pizza} key={pizza.id} />
-              ))}
-            </ul>
-          </>
-        ) : (
-          <p>Not found any items</p>
-        )}
-      </main>
-    </>
-  );
-};
-
-const Footer = () => {
-  const hour = new Date().getHours();
-  const openHour = 12;
-  const closeHour = 22;
-  const isOpen = hour >= openHour && hour <= closeHour;
-  return (
-    <>
-      <footer className="footer">
-        {isOpen ? (
-          <Order closeHour={closeHour} openHour={openHour} />
-        ) : (
-          <p>We're currenlty closed. Please come back later .</p>
-        )}
-      </footer>
-    </>
-  );
-};
-
-function Order(props: { closeHour: number; openHour: number }) {
-  const { closeHour, openHour } = props;
-  return (
-    <>
-      <p className="order">
-        We're currently open from {openHour}:00 till {closeHour}:00, You can
-        order by
-        <button className="btn">Order now</button>
-      </p>
+      <form className="add-form" onSubmit={handleSubmit}>
+        <h3>What do yout need for your trip?</h3>
+        <select value={quantity} onChange={(e) => setQuantity(+e.target.value)}>
+          {Array.from({ length: 20 }, (_, i) => i + 1).map((number) => (
+            <option key={number} value={number}>
+              {number}
+            </option>
+          ))}
+        </select>
+        <input
+          placeholder="Item...."
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <button>Add Item</button>
+      </form>
     </>
   );
 }
 
-function Pizza(props: { info: IPizza }) {
-  const { photoName, name, ingredients, price, soldOut } = props.info;
-  const classes = `pizza ${soldOut ? "sold-out" : ""}`;
+function PackingList() {
+  return (
+    <div className="list">
+      <ul>
+        {initialItems.map((item) => (
+          <Item item={item} key={item.id} />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Item(props: { item: IITems }) {
+  const { item } = props;
   return (
     <>
-      <li className={classes}>
-        <img src={`${photoName}`} />
-        <div>
-          <h2>{name}</h2>
-          <p>{ingredients}</p>
-          <span>{soldOut ? "SoldOut" : price + 3}</span>
-        </div>
+      <li>
+        <>
+          <span style={item.packed ? { textDecoration: "line-through" } : {}}>
+            {item.quantity} {item.description}
+          </span>
+          <button>&times;</button>
+        </>
       </li>
     </>
   );
 }
 
+function Stats() {
+  return (
+    <footer className="stats">
+      <em>You have x items on your list, and you already packed X </em>
+    </footer>
+  );
+}
 function App() {
   return (
     <>
-      <div className="container">
-        <Header />
-        <Menu />
-        <Footer />
+      <div className="app">
+        <Logo />
+        <Form />
+        <PackingList />
+        <Stats />
       </div>
     </>
   );
