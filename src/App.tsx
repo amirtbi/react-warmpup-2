@@ -1,104 +1,44 @@
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import Logo from "./Logo";
+import Form from "./Form";
+import PackingList from "./PackingList";
+import Stats from "./Stats";
+import { IITems } from "./types";
 import "./index.css";
 
-interface IITems {
-  id: number;
-  description: string;
-  quantity: number;
-  packed: boolean;
-}
-const initialItems: IITems[] = [
-  { id: 1, description: "Passports", quantity: 2, packed: false },
-  { id: 2, description: "Socks", quantity: 12, packed: false },
-  { id: 3, description: "Socks", quantity: 12, packed: true },
-];
+function App() {
+  const [newItems, setItems] = useState<IITems[]>([]);
 
-function Logo() {
-  return <h1>Far away</h1>;
-}
+  const handleAddItem = (item: IITems) => {
+    setItems((items) => [...items, item]);
+  };
 
-function Form() {
-  const [description, setDescription] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const handleSubmit = (e: FormEvent) => {
-    console.log("e", e);
-    e.preventDefault();
+  const handleDeleteItem = (id: number) => {
+    const filteredItem = newItems.filter((item) => item.id !== id);
+    setItems(() => [...filteredItem]);
+  };
 
-    if (!description) return;
-
-    const newItem = { description, quantity, id: Date.now(), packed: false };
-    console.log("new item", newItem);
-
-    setDescription("");
-    setQuantity(1);
+  const clearItems = () => {
+    setItems(() => []);
+  };
+  const toggleItemStatus = (id: number) => {
+    setItems((items) =>
+      items.map((item) =>
+        item.id === id ? { ...item, packed: !item.packed } : { ...item }
+      )
+    );
   };
   return (
     <>
-      <form className="add-form" onSubmit={handleSubmit}>
-        <h3>What do yout need for your trip?</h3>
-        <select value={quantity} onChange={(e) => setQuantity(+e.target.value)}>
-          {Array.from({ length: 20 }, (_, i) => i + 1).map((number) => (
-            <option key={number} value={number}>
-              {number}
-            </option>
-          ))}
-        </select>
-        <input
-          placeholder="Item...."
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <button>Add Item</button>
-      </form>
-    </>
-  );
-}
-
-function PackingList() {
-  return (
-    <div className="list">
-      <ul>
-        {initialItems.map((item) => (
-          <Item item={item} key={item.id} />
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function Item(props: { item: IITems }) {
-  const { item } = props;
-  return (
-    <>
-      <li>
-        <>
-          <span style={item.packed ? { textDecoration: "line-through" } : {}}>
-            {item.quantity} {item.description}
-          </span>
-          <button>&times;</button>
-        </>
-      </li>
-    </>
-  );
-}
-
-function Stats() {
-  return (
-    <footer className="stats">
-      <em>You have x items on your list, and you already packed X </em>
-    </footer>
-  );
-}
-function App() {
-  return (
-    <>
-      <div className="app">
-        <Logo />
-        <Form />
-        <PackingList />
-        <Stats />
-      </div>
+      <Logo />
+      <Form onAddNewItem={handleAddItem} />
+      <PackingList
+        items={newItems}
+        onHandleDeleteItem={handleDeleteItem}
+        onToggleItemStatus={toggleItemStatus}
+        onClearItems={clearItems}
+      />
+      <Stats newItems={newItems} />
     </>
   );
 }
